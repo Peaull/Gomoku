@@ -1,4 +1,5 @@
-from gomoku import *
+from IA_gomoku_Paul import *
+from IA_gomoku_Matteo import *
 
 def creer_plateau():
     plateau = [["." for _ in range(15)] for _ in range(15)]
