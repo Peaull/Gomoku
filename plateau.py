@@ -107,3 +107,74 @@ def jouer():
         restriction = joueur_actuel == "N" and restriction
         tour_actuel += 1
 
+def jouer2IA():
+    plateau = creer_plateau()
+    afficher_plateau(plateau)
+
+    IA1 = "B"
+    
+    joueur_actuel = "B"
+    restriction = False
+    pions_restants = {"N": 59, "B": 60}
+
+    premier_tour = True
+    tour_actuel = 0
+    
+    while True:
+        if pions_restants["N"] == 0 and pions_restants["B"] == 0:
+            print("Match nul.")
+            break
+
+        if joueur_actuel == IA1:
+            if restriction:
+                if plateau[2][7] != "B" and plateau[6][7] != "B":
+                    x = 2 
+                    y = 7
+                else :
+                    x =12
+                    y = 7
+            else:
+                temp = coup_ia1(plateau, joueur_actuel, tour_actuel)
+                x= temp[0]
+                y= temp[1]
+            print(f"L'IA 1 joue : {chr(65 + x)}{y}")
+        else:
+            if restriction:
+                if plateau[2][7] != "B" and plateau[6][7] != "B":
+                    x = 2 
+                    y = 7
+                else :
+                    x =12
+                    y = 7
+            else :
+                temp = coup_ia2(plateau, joueur_actuel, tour_actuel)
+                x= temp[0]
+                y= temp[1]
+
+            print(f"L'IA 2 joue : {chr(65 + x)}{y}")
+
+        if not (0 <= x < 15 and 0 <= y < 15):
+            print("Coup invalide. Réessayez.")
+            continue
+
+        if not est_valide(plateau, x, y, joueur_actuel, restriction):
+            print("Coup invalide. Réessayez.")
+            continue
+
+        jouer_coup(plateau, x, y, joueur_actuel)
+        afficher_plateau(plateau)
+        pions_restants[joueur_actuel] -= 1
+
+        if tour_actuel > 6:
+            if verifier_victoire(plateau, joueur_actuel):
+                print(f"Le joueur {joueur_actuel} a gagné !")
+                break
+
+        if premier_tour:
+            if joueur_actuel == "B":
+                restriction = True
+            premier_tour = False
+
+        joueur_actuel = "B" if joueur_actuel == "N" else "N"
+        restriction = joueur_actuel == "N" and restriction
+        tour_actuel += 1
