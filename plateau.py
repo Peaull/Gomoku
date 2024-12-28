@@ -134,7 +134,7 @@ def jouer2IA():
                     x =12
                     y = 7
             else:
-                temp = coup_ia1(plateau, joueur_actuel, tour_actuel)
+                temp = coup_ia(plateau, joueur_actuel, tour_actuel)
                 x= temp[0]
                 y= temp[1]
             print(f"L'IA 1 joue : {chr(65 + x)}{y}")
@@ -147,7 +147,7 @@ def jouer2IA():
                     x =12
                     y = 7
             else :
-                temp = coup_ia2(plateau, joueur_actuel, tour_actuel)
+                temp = coup_ia(plateau, joueur_actuel, tour_actuel)
                 x= temp[0]
                 y= temp[1]
 
