@@ -81,7 +81,7 @@ def eval_ligne(ligne, joueur, adversaire):
 
 
 
-def AlphaBeta(plateau, joueur, limite=2):
+def AlphaBeta(plateau, joueur, limite):
 
     def Max_Value(plateau, alpha, beta, limite):
 
@@ -162,6 +162,8 @@ def est_valide(plateau, x, y, joueur, restriction):
     if joueur == "N" and restriction:
         if 3 <= x <= 11 and 3 <= y <= 11:
             return False
+    if x > 14 or y > 14:
+        return False
     return True
 
 
@@ -169,8 +171,27 @@ def jouer_coup(plateau, x, y, joueur):
     plateau[x][y] = joueur
 
 
-def coup_ia(plateau, joueur):
-    return AlphaBeta(plateau, joueur)
+def coup_ia(plateau, joueur, tour_actuel):
+    x=0
+    y=0
+    taille_sous_plateau = 3 if tour_actuel < 8 else \
+              5 if tour_actuel < 16 else \
+              7 if tour_actuel < 20 else \
+              10 if tour_actuel < 30 else 15
+
+    if taille_sous_plateau == 15:
+        res = AlphaBeta(plateau, joueur)
+        x=res[0]
+        y=res[1]
+    else:
+        sous_plateau_centre = sous_plateau(plateau, taille_sous_plateau)
+        if tour_actuel < 7:
+            res =AlphaBeta(sous_plateau_centre, joueur, 3)
+        else:
+            res = AlphaBeta(sous_plateau_centre, joueur,2)
+        x = res[0] + max(0, 7 - taille_sous_plateau)
+        y = res[1] + max(0, 7 - taille_sous_plateau)
+    return (x,y)
 
 
 def sous_plateau(plateau, taille):
@@ -208,19 +229,17 @@ def jouer():
             coup = input("Entrez votre coup (ex: H7) : ").strip().upper()
             x, y = ord(coup[0]) - 65, int(coup[1:])
         else:
-            taille_sous_plateau = 3 if tour_actuel < 8 else \
-                      5 if tour_actuel < 16 else \
-                      7 if tour_actuel < 20 else \
-                      10 if tour_actuel < 30 else 15
-
-            if taille_sous_plateau == 15:
-                res = coup_ia(plateau, joueur_actuel)
-                x, y = res
-            else:
-                sous_plateau_centre = sous_plateau(plateau, taille_sous_plateau)
-                res = coup_ia(sous_plateau_centre, joueur_actuel)
-                x = res[0] + max(0, 7 - taille_sous_plateau)
-                y = res[1] + max(0, 7 - taille_sous_plateau)
+            if restriction:
+                if plateau[2][7] != "B" and plateau[6][7] != "B":
+                    x = 2 
+                    y = 7
+                else :
+                    x =12
+                    y = 7
+            else :
+                temp = coup_ia(plateau, joueur_actuel, tour_actuel)
+                x= temp[0]
+                y= temp[1]
 
             print(f"L'IA joue : {chr(65 + x)}{y}")
 
