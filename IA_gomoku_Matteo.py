@@ -226,7 +226,7 @@ def sous_plateau(plateau, taille):
     return sous_plateau
 
 
-def jouer():
+def jouerr():
     plateau = creer_plateau()
     afficher_plateau(plateau)
 
@@ -288,6 +288,3 @@ def jouer():
         joueur_actuel = "B" if joueur_actuel == "N" else "N"
         restriction = joueur_actuel == "N" and restriction
         tour_actuel += 1
-
-
-jouer()

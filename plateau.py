@@ -1,4 +1,4 @@
-from gomoku.py import *
+from gomoku import *
 
 def creer_plateau():
     plateau = [["." for _ in range(15)] for _ in range(15)]
@@ -178,3 +178,6 @@ def jouer2IA():
         joueur_actuel = "B" if joueur_actuel == "N" else "N"
         restriction = joueur_actuel == "N" and restriction
         tour_actuel += 1
+
+
+jouer2IA()
