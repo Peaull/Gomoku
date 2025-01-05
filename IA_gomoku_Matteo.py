@@ -1,15 +1,16 @@
 def Actions(plateau):
     actions = set()
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (-1, 1), (1, -1)]
-    for x in range(len(plateau)):
-        for y in range(len(plateau)):
+    n = len(plateau)
+    for x in range(n):
+        for y in range(n):
             if plateau[x][y] != ".":
-                for dx, dy in directions:
-                    for i in range(1, 3):
-                        nx, ny = x + i * dx, y + i * dy
-                        if 0 <= nx < len(plateau) and 0 <= ny < len(plateau) and plateau[nx][ny] == ".":
+                for dx in range(-2, 3):
+                    for dy in range(-2, 3):
+                        nx, ny = x + dx, y + dy
+                        if 0 <= nx < n and 0 <= ny < n and plateau[nx][ny] == ".":
                             actions.add((nx, ny))
     return list(actions)
+
 
 def Result(plateau, action, joueur):
     nouveau_plateau = [ligne[:] for ligne in plateau]
@@ -84,9 +85,16 @@ def eval_ligne(ligne, joueur, adversaire):
 
     return score
 
+def Coups_Critiques(plateau, joueur):
+    adversaire = "N" if joueur == "B" else "B"
+    directions = [(1, 0), (0, 1), (1, 1), (1, -1)]  
+    coups_critique = []
+
+    return []
 
 
-def AlphaBeta(plateau, joueur, ):
+
+def AlphaBeta(plateau, joueur):
     
     import time
     debut = time.time()
@@ -120,7 +128,10 @@ def AlphaBeta(plateau, joueur, ):
 
         v = float("inf")
         meilleure_action = None
-        actions = Actions(plateau)
+        
+        coups_critique = Coups_Critiques(plateau, joueur)
+        actions = coups_critique if coups_critique else Actions(plateau)
+        
         actions.sort(key=lambda a: Utility(Result(plateau, a, "N" if joueur == "B" else "B"), joueur), reverse=True)
 
         for action in actions:
@@ -188,28 +199,9 @@ def jouer_coup(plateau, x, y, joueur):
 
 
 def coup_ia(plateau, joueur, tour_actuel):
-    taille_sous_plateau = 3 if tour_actuel < 8 else \
-              7 if tour_actuel < 14 else \
-              10 if tour_actuel < 18 else \
-              13 if tour_actuel < 24 else 15
-
-    if taille_sous_plateau == 15:
-        res = AlphaBeta(plateau, joueur, 3)
-        x, y = res
-    else:
-        centre_x = 7
-        centre_y = 7
-        min_x = max(0, centre_x - taille_sous_plateau)
-        max_x = min(len(plateau) - 1, centre_x + taille_sous_plateau)
-        min_y = max(0, centre_y - taille_sous_plateau)
-        max_y = min(len(plateau[0]) - 1, centre_y + taille_sous_plateau)
-
-        sous_plateau_centre = [ligne[min_y:max_y + 1] for ligne in plateau[min_x:max_x + 1]]
-        res = AlphaBeta(sous_plateau_centre, joueur)
-        
-        x = res[0] + min_x
-        y = res[1] + min_y
-
+    
+    res = AlphaBeta(plateau, joueur)
+    x, y = res
     return x, y
 
 
@@ -288,3 +280,5 @@ def jouerr():
         joueur_actuel = "B" if joueur_actuel == "N" else "N"
         restriction = joueur_actuel == "N" and restriction
         tour_actuel += 1
+
+jouerr()
