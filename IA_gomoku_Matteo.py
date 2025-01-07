@@ -4,8 +4,8 @@ def Actions(plateau):
     for x in range(n):
         for y in range(n):
             if plateau[x][y] != ".":
-                for dx in range(-2, 3):
-                    for dy in range(-2, 3):
+                for dx in range(-3, 4):
+                    for dy in range(-3, 4):
                         nx, ny = x + dx, y + dy
                         if 0 <= nx < n and 0 <= ny < n and plateau[nx][ny] == ".":
                             actions.add((nx, ny))
@@ -86,31 +86,83 @@ def eval_ligne(ligne, joueur, adversaire):
     return score
 
 def Coups_Critiques(plateau, joueur):
-    adversaire = "N" if joueur == "B" else "B"
+    # Modèles pour les coups critiques
+    coups_critiques = {
+        "N": [("NNNN.",1), (".NNNN",1), ("NN.NN",1), ("N.NNN",1), ("NNN.N",1), (".NNN.",2), ("NN.N.",2), (".N.NN",2)],
+        "B": [(".BBB.",2), ("BBBB.",1), (".BBBB",1), ("BB.BB",1), ("B.BBB",1), ("BBB.B",1), ("BB.B.",2), (".B.BB",2)]
+    }
+    
+    adversaire = "B" if joueur == "N" else "N"
     directions = [(1, 0), (0, 1), (1, 1), (1, -1)]  
-    coups_critique = []
+    
+    coups_crit_att = [None,None]
+    coups_crit_def = [None,None]
 
-    return []
-
+    for x in range(15):
+        for y in range(15):
+            for dx, dy in directions:
+                temp = "" 
+                temp_coup = [] 
+                for i in range(5):
+                    nx, ny = x + i * dx, y + i * dy
+                    if 0 <= nx < 15 and 0 <= ny < 15:
+                        symbole = plateau[nx][ny]
+                        temp += symbole
+                        if symbole == '.':
+                            temp_coup.append((nx, ny))
+                
+                for i in coups_critiques[joueur]:
+                    if temp == i[0]:
+                        if i[1] == 1:
+                            coups_crit_att[0] = temp_coup
+                        else:
+                            coups_crit_att[1] = temp_coup
+                
+                for i in coups_critiques[adversaire]:
+                    if temp == i[0]:
+                        if i[1] == 1:
+                            coups_crit_def[0] = temp_coup
+                        else:
+                            coups_crit_def[1] = temp_coup
+                
+    
+    if coups_crit_att[0] != None:
+        return list(coups_crit_att[0])
+    
+    if coups_crit_def[0] != None:
+        return list(coups_crit_def[0])
+    
+    if coups_crit_att[1] != None:
+        return list(coups_crit_att[1])
+    
+    if coups_crit_def[1] != None:
+        return list(coups_crit_def[1])
+    return None
 
 
 def AlphaBeta(plateau, joueur):
-    
     import time
     debut = time.time()
     temps_limite = 5
 
+    coups_critiques = Coups_Critiques(plateau, joueur)
+    if coups_critiques != None:  
+        return coups_critiques[0]  
+
     def Max_Value(plateau, alpha, beta):
-        if Terminal_Test(plateau) :
+        if Terminal_Test(plateau):
+            return Utility(plateau, joueur), None
+
+        if time.time() - debut > temps_limite:
             return Utility(plateau, joueur), None
 
         v = float("-inf")
         meilleure_action = None
-        actions = Actions(plateau) 
-        actions.sort(key=lambda a: Utility(Result(plateau, a, joueur), joueur), reverse=True) 
+        actions = Actions(plateau)
+        actions.sort(key=lambda a: Utility(Result(plateau, a, joueur), joueur), reverse=True)
 
         for action in actions:
-            if time.time() - debut > temps_limite:  
+            if time.time() - debut > temps_limite:
                 break
             score, _ = Min_Value(Result(plateau, action, joueur), alpha, beta)
             if score > v:
@@ -123,15 +175,15 @@ def AlphaBeta(plateau, joueur):
         return v, meilleure_action
 
     def Min_Value(plateau, alpha, beta):
-        if Terminal_Test(plateau) :
+        if Terminal_Test(plateau):
+            return Utility(plateau, joueur), None
+
+        if time.time() - debut > temps_limite:
             return Utility(plateau, joueur), None
 
         v = float("inf")
         meilleure_action = None
-        
-        coups_critique = Coups_Critiques(plateau, joueur)
-        actions = coups_critique if coups_critique else Actions(plateau)
-        
+        actions = Actions(plateau)
         actions.sort(key=lambda a: Utility(Result(plateau, a, "N" if joueur == "B" else "B"), joueur), reverse=True)
 
         for action in actions:
@@ -148,8 +200,8 @@ def AlphaBeta(plateau, joueur):
         return v, meilleure_action
 
     _, meilleure_action = Max_Value(plateau, float("-inf"), float("inf"))
+    
     return meilleure_action
-
 
 
 def creer_plateau():
@@ -157,12 +209,10 @@ def creer_plateau():
     plateau[7][7] = "N"
     return plateau
 
-
 def afficher_plateau(plateau):
     print("  " + " ".join(map(str, range(15))))
     for i in range(15):
         print(chr(65 + i) + " " + " ".join(plateau[i]))
-
 
 def verifier_victoire(plateau, joueur):
     for x in range(15):
@@ -203,19 +253,6 @@ def coup_ia(plateau, joueur, tour_actuel):
     res = AlphaBeta(plateau, joueur)
     x, y = res
     return x, y
-
-
-
-def sous_plateau(plateau, taille):
-    centre_x=7
-    centre_y=7
-    min_x = max(0, centre_x - taille)
-    max_x = min(len(plateau) - 1, centre_x + taille)
-    min_y = max(0, centre_y - taille)
-    max_y = min(len(plateau[0]) - 1, centre_y + taille)
-
-    sous_plateau = [ligne[min_y:max_y + 1] for ligne in plateau[min_x:max_x + 1]]
-    return sous_plateau
 
 
 def jouerr():
